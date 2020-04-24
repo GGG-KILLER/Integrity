@@ -124,9 +124,9 @@ namespace Integrity.Util
         }
 
         private static String WithAlgorithm ( HashAlgorithm algorithm, Byte[] data ) =>
-            String.Join ( "", Array.ConvertAll ( algorithm.ComputeHash ( data ), b => $"{b:x}" ) );
+            String.Concat ( Array.ConvertAll ( algorithm.ComputeHash ( data ), b => $"{b:x2}" ) );
 
         private static String WithAlgorithm ( HashAlgorithm algorithm, Stream data ) =>
-            String.Join ( "", Array.ConvertAll ( algorithm.ComputeHash ( data ), b => $"{b:x}" ) );
+            String.Concat ( Array.ConvertAll ( algorithm.ComputeHash ( data ), b => $"{b:x2}" ) );
     }
 }
