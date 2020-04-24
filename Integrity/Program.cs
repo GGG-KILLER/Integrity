@@ -83,9 +83,13 @@ namespace Integrity
                 try
                 {
                     using ( rootarea.TimeLine ( "Listing files for globs" ) )
+                    {
                         foreach ( var pattern in options.Globs )
+                        {
                             foreach ( var path in Glob.Files ( options.Root, pattern, GlobOptions.Compiled ) )
                                 paths.Add ( path );
+                        }
+                    }
                 }
                 catch ( Exception ex )
                 {
@@ -116,8 +120,10 @@ namespace Integrity
                                 {
                                     Interlocked.Increment ( ref calculated );
                                     if ( calculated % delta == 0 )
+                                    {
                                         lock ( area ?? rootarea )
                                             ( area ?? rootarea ).Log ( $"Progress: {calculated}/{paths.Count}" );
+                                    }
                                 }
                             } )
                             .ToArray ( );
@@ -166,12 +172,16 @@ namespace Integrity
                                         Interlocked.Increment ( ref violated );
                                     }
                                     else if ( options.Verbose )
+                                    {
                                         sub.Log ( $"Integrity valid: {entry.RelativePath}" );
+                                    }
                                 }
                                 Interlocked.Increment ( ref @checked );
                                 if ( @checked % delta == 0 )
+                                {
                                     lock ( sub )
                                         sub.Log ( $"Progress: {@checked}/{file.Entries.Length}" );
+                                }
                             } );
                     }
 
