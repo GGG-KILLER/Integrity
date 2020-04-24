@@ -210,12 +210,11 @@ namespace Integrity
 
                     area.Log ( $"Hash algorithm used: {file.HashAlgorithm}" );
                     area.Log ( $"Entry count: {file.Entries.Length}" );
-                    using ( var sub = new TimingArea ( "Entries:", area ) )
-                    {
-                        var mlen = file.Entries.Max ( entry => entry.RelativePath.Length );
-                        foreach ( IntegrityFile.Entry entry in file.Entries )
-                            sub.Log ( $"{entry.RelativePath.PadRight ( mlen, ' ' )}: {entry.HexDigest}" );
-                    }
+                    
+                    using var sub = new TimingArea ( "Entries:", area );
+                    var mlen = file.Entries.Max ( entry => entry.RelativePath.Length );
+                    foreach ( IntegrityFile.Entry entry in file.Entries )
+                        sub.Log ( $"{entry.RelativePath.PadRight ( mlen, ' ' )}: {entry.HexDigest}" );
                 }
                 catch ( Exception e )
                 {

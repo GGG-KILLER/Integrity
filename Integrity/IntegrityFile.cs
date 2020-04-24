@@ -21,7 +21,7 @@ namespace Integrity
             }
         }
 
-        private static readonly Byte[] MagicNumber =  new[]
+        private static readonly Byte[] MagicNumber =
         {
             ( Byte ) 'I',
             ( Byte ) 'N',
@@ -47,53 +47,51 @@ namespace Integrity
 
         public void WriteTo ( Stream stream )
         {
-            using ( var writer = new BinaryWriter ( stream, Encoding.UTF8, true ) )
+            using var writer = new BinaryWriter ( stream, Encoding.UTF8, true );
+            writer.Write ( MagicNumber );
+            writer.Write ( Version );
+            writer.Write ( this.HashAlgorithm );
+            writer.Write ( this.Entries.Length );
+            foreach ( Entry entry in this.Entries )
             {
-                writer.Write ( MagicNumber );
-                writer.Write ( Version );
-                writer.Write ( this.HashAlgorithm );
-                writer.Write ( this.Entries.Length );
-                foreach ( Entry entry in this.Entries )
-                {
-                    writer.Write ( entry.RelativePath );
-                    writer.Write ( entry.HexDigest );
-                }
+                writer.Write ( entry.RelativePath );
+                writer.Write ( entry.HexDigest );
             }
         }
 
         public static IntegrityFile ReadFrom ( Stream stream )
         {
-            using ( var reader = new BinaryReader ( stream, Encoding.UTF8, true ) )
+            using var reader = new BinaryReader ( stream, Encoding.UTF8, true );
+            var buff = new Byte[MagicNumber.Length];
+            reader.Read ( buff, 0, MagicNumber.Length );
+            if ( !MagicNumber.SequenceEqual ( buff ) )
+                throw new FormatException ( "Invalid file header" );
+
+            var version = reader.ReadInt32 ( );
+            if ( Version < version )
+                throw new FormatException ( "Unsupported file version" );
+
+            var alg = reader.ReadString ( );
+
+            // Backwards compatibility with v1
+            if ( version == 1 )
             {
-                var buff = new Byte[MagicNumber.Length];
-                reader.Read ( buff );
-                if ( !MagicNumber.SequenceEqual ( buff ) )
-                    throw new FormatException ( "Invalid file header" );
-
-                var version = reader.ReadInt32 ( );
-                if ( Version < version )
-                    throw new FormatException ( "Unsupported file version" );
-
-                var alg = reader.ReadString ( );
-
-                // Backwards compatibility with v1
-                if ( version == 1 )
+                var globsLen = reader.ReadInt32 ( );
+                if ( globsLen >= 0 && globsLen <= 25 )
                 {
-                    var globsLen = reader.ReadInt32 ( );
-                    if ( globsLen >= 0 && globsLen <= 25 )
-                        for ( var i = 0; i < globsLen; i++ )
-                            reader.ReadString ( );
+                    for ( var i = 0; i < globsLen; i++ )
+                        reader.ReadString ( );
                 }
-
-                var fileLen = reader.ReadInt32 ( );
-                if ( fileLen < 0 )
-                    throw new FormatException ( "Invalid file count" );
-                var files = new Entry[fileLen];
-                for ( var i = 0; i < fileLen; i++ )
-                    files[i] = new Entry ( reader.ReadString ( ), reader.ReadString ( ) );
-
-                return new IntegrityFile ( alg, files );
             }
+
+            var fileLen = reader.ReadInt32 ( );
+            if ( fileLen < 0 )
+                throw new FormatException ( "Invalid file count" );
+            var files = new Entry[fileLen];
+            for ( var i = 0; i < fileLen; i++ )
+                files[i] = new Entry ( reader.ReadString ( ), reader.ReadString ( ) );
+
+            return new IntegrityFile ( alg, files );
         }
     }
 }
