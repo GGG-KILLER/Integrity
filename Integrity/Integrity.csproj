@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net48;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net48;net5.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <CodeAnalysisRuleSet>RuleSet.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -10,8 +10,7 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.3.0" />
     <PackageReference Include="Glob" Version="1.0.2" />
-    <PackageReference Include="GUtils.IO" Version="7.0.0" />
-    <PackageReference Include="GUtils.Timing" Version="2.0.0" />
+    <PackageReference Include="Tsu" Version="2.1.1" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
   </ItemGroup>
   
