@@ -73,12 +73,13 @@ namespace Integrity
             var end = Stopwatch.GetTimestamp ( );
             var elapsed = end - start;
 
-            if ( !String.Equals ( entry.HexDigest, digest, StringComparison.OrdinalIgnoreCase ) )
+            var checkFailed = !String.Equals ( entry.HexDigest, digest, StringComparison.OrdinalIgnoreCase );
+            if ( checkFailed )
             {
                 failedChecks.Add ( entry );
                 this.FileCheckFailed?.Invoke ( this, entry, digest, elapsed );
             }
-            this.FileCheckFinished?.Invoke ( this, entry, elapsed );
+            this.FileCheckFinished?.Invoke ( this, entry, checkFailed, elapsed );
         }
     }
 }
