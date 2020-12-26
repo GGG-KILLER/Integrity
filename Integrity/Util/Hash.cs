@@ -34,10 +34,10 @@ namespace Integrity.Util
             return WithAlgorithm ( sha256, data );
         }
 
-        public static Task<String> SHA256Async ( Stream stream, Int32 bufferSize = 4 * FileSize.KiB, CancellationToken cancellationToken = default )
+        public static async Task<String> SHA256Async ( Stream stream, Int32 bufferSize = 4 * FileSize.KiB, CancellationToken cancellationToken = default )
         {
             using var sha256 = Crypto.SHA256.Create ( );
-            return WithAlgorithmAsync ( sha256, stream, bufferSize, cancellationToken );
+            return await WithAlgorithmAsync ( sha256, stream, bufferSize, cancellationToken ).ConfigureAwait ( false );
         }
 
         public static String SHA384 ( String data, Encoding encoding = null )
@@ -58,10 +58,10 @@ namespace Integrity.Util
             return WithAlgorithm ( sha384, data );
         }
 
-        public static Task<String> SHA384Async ( Stream stream, Int32 bufferSize = 4 * FileSize.KiB, CancellationToken cancellationToken = default )
+        public static async Task<String> SHA384Async ( Stream stream, Int32 bufferSize = 4 * FileSize.KiB, CancellationToken cancellationToken = default )
         {
             using var sha384 = Crypto.SHA384.Create ( );
-            return WithAlgorithmAsync ( sha384, stream, bufferSize, cancellationToken );
+            return await WithAlgorithmAsync ( sha384, stream, bufferSize, cancellationToken ).ConfigureAwait ( false );
         }
 
         public static String SHA512 ( String data, Encoding encoding = null )
@@ -82,10 +82,10 @@ namespace Integrity.Util
             return WithAlgorithm ( sha512, data );
         }
 
-        public static Task<String> SHA512Async ( Stream stream, Int32 bufferSize = 4 * FileSize.KiB, CancellationToken cancellationToken = default )
+        public static async Task<String> SHA512Async ( Stream stream, Int32 bufferSize = 4 * FileSize.KiB, CancellationToken cancellationToken = default )
         {
             using var sha512 = Crypto.SHA512.Create ( );
-            return WithAlgorithmAsync ( sha512, stream, bufferSize, cancellationToken );
+            return await WithAlgorithmAsync ( sha512, stream, bufferSize, cancellationToken ).ConfigureAwait ( false );
         }
 
         public static String WithAlgorithm ( String name, String data, Encoding encoding = null )
@@ -121,7 +121,7 @@ namespace Integrity.Util
             return WithAlgorithm ( algo, data );
         }
 
-        public static Task<String> WithAlgorithmAsync ( String name, Stream stream, Int32 bufferSize = 4 * FileSize.KiB, CancellationToken cancellationToken = default )
+        public static async Task<String> WithAlgorithmAsync ( String name, Stream stream, Int32 bufferSize = 4 * FileSize.KiB, CancellationToken cancellationToken = default )
         {
             if ( String.IsNullOrEmpty ( name ) )
                 throw new ArgumentException ( $"'{nameof ( name )}' cannot be null or empty.", nameof ( name ) );
@@ -131,7 +131,7 @@ namespace Integrity.Util
                 throw new ArgumentOutOfRangeException ( nameof ( bufferSize ) );
 
             using var algo = HashAlgorithm.Create ( name.ToUpperInvariant ( ) );
-            return WithAlgorithmAsync ( algo, stream, bufferSize, cancellationToken );
+            return await WithAlgorithmAsync ( algo, stream, bufferSize, cancellationToken ).ConfigureAwait ( false );
         }
 
         private static String WithAlgorithm ( HashAlgorithm algorithm, String data, Encoding encoding = null ) =>
