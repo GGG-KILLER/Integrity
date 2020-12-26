@@ -24,13 +24,15 @@ namespace Integrity
     internal class FileChecker
     {
         private readonly String _root;
+        private readonly Int32 _bufferSize;
 
         public event FileCheckerCheckFailedEventHandler FileCheckFailed;
         public event FileCheckerCheckFinishedEventHandler FileCheckFinished;
 
-        public FileChecker ( String root )
+        public FileChecker ( String root, Int32 bufferSize )
         {
             this._root = root;
+            this._bufferSize = bufferSize;
         }
 
         public async Task<ImmutableArray<IntegrityFile.Entry>> Check (
@@ -67,7 +69,7 @@ namespace Integrity
             var start = Stopwatch.GetTimestamp ( );
             using ( FileStream stream = File.Open ( Path.Combine ( this._root, entry.RelativePath ), FileMode.Open, FileAccess.Read, FileShare.Read ) )
             {
-                digest = await Hash.WithAlgorithmAsync ( hashAlgorithm, stream, cancellationToken: cancellationToken )
+                digest = await Hash.WithAlgorithmAsync ( hashAlgorithm, stream, this._bufferSize, cancellationToken: cancellationToken )
                                    .ConfigureAwait ( false );
             }
             var end = Stopwatch.GetTimestamp ( );
