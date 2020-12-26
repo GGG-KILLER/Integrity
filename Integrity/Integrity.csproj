@@ -4,7 +4,6 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net48;net5.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <CodeAnalysisRuleSet>RuleSet.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +12,5 @@
     <PackageReference Include="Tsu" Version="2.1.1" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
   </ItemGroup>
-  
-  
 
 </Project>
