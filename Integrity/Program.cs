@@ -62,15 +62,21 @@ namespace Integrity
                         var delta = Math.Max ( paths.Count / 100, 1 );
                         var calculated = 0;
 
-                        var generator = new FileGenerator ( options.Hash, options.Root );
+                        var generator = new FileGenerator ( options.Hash, options.Root, ( Int32 ) FileSize.ParseInteger ( options.BufferSize ) );
                         generator.FileProcessed += ( _, path, entry, elapsed ) =>
                         {
+                            if ( options.Verbose )
+                            {
+                                lock ( logger )
+                                    logger.LogDebug ( $"Processed file '{path}' in {Duration.Format ( elapsed )}." );
+                            }
                             if ( Interlocked.Increment ( ref calculated ) % delta == 0 )
                             {
-                                logger.LogInformation ( $"Progress: {calculated}/{paths.Count}" );
+                                lock ( logger )
+                                    logger.LogInformation ( $"Progress: {calculated}/{paths.Count}" );
                             }
                         };
-                        file = await generator.Generate ( paths, options.Threads )
+                        file = await generator.Generate ( paths, options.ThreadCount )
                                               .ConfigureAwait ( false );
                     }
                     catch ( Exception ex )
@@ -105,20 +111,25 @@ namespace Integrity
                     var delta = Math.Max ( file.Entries.Length / 100, 1 );
                     using ( logger.BeginScope ( "File checking" ) )
                     {
-                        var checker = new FileChecker ( options.Root );
+                        var checker = new FileChecker ( options.Root, ( Int32 ) FileSize.ParseInteger ( options.BufferSize ) );
                         checker.FileCheckFailed += ( _, entry, actualDigest, elapsed ) =>
                         {
-                            logger.LogWarning ( $"Integrity violation for '{entry.RelativePath}' failed in {Duration.Format ( elapsed )}." );
+                            lock ( logger )
+                                logger.LogWarning ( $"Integrity violation for '{entry.RelativePath}' failed in {Duration.Format ( elapsed )}." );
                             Interlocked.Increment ( ref violated );
                         };
                         checker.FileCheckFinished += ( _, entry, checkFailed, elapsed ) =>
                         {
                             if ( !checkFailed )
-                                logger.LogDebug ( $"Integrity check passed for '{entry.RelativePath}' in {Duration.Format ( elapsed )}." );
+                            {
+                                lock ( logger )
+                                    logger.LogDebug ( $"Integrity check passed for '{entry.RelativePath}' in {Duration.Format ( elapsed )}." );
+                            }
 
                             if ( Interlocked.Increment ( ref @checked ) % delta == 0 )
                             {
-                                logger.LogInformation ( $"Progress: {@checked}/{file.Entries.Length}" );
+                                lock ( logger )
+                                    logger.LogInformation ( $"Progress: {@checked}/{file.Entries.Length}" );
                             }
                         };
 
@@ -139,7 +150,7 @@ namespace Integrity
             }
         }
 
-        private static async Task<Int32> PrettyPrint ( PrettyPrintOptions options )
+        private static Task<Int32> PrettyPrint ( PrettyPrintOptions options )
         {
             var logger = new ConsoleTimingLogger ( );
             using ( logger.BeginScope ( "Human Readable Printing" ) )
@@ -165,7 +176,7 @@ namespace Integrity
                     logger.LogError ( $"Error while printing:\n{e}" );
                 }
             }
-            return 0;
+            return Task.FromResult ( 0 );
         }
     }
 }
