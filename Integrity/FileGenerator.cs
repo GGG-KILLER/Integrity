@@ -20,16 +20,18 @@ namespace Integrity
     {
         private readonly String _hashAlgorithm;
         private readonly String _root;
+        private readonly Int32 _bufferSize;
 
         /// <summary>
         /// Called when a file is processed.
         /// </summary>
         public event FileProcessedEventHandler FileProcessed;
 
-        public FileGenerator ( String hashAlgorithm, String root )
+        public FileGenerator ( String hashAlgorithm, String root, Int32 bufferSize )
         {
             this._hashAlgorithm = hashAlgorithm;
             this._root = root;
+            this._bufferSize = bufferSize;
         }
 
         public async Task<IntegrityFile> Generate (
@@ -75,7 +77,7 @@ namespace Integrity
                 FileAccess.Read,
                 FileShare.Read ) )
             {
-                var hash = await Hash.WithAlgorithmAsync ( this._hashAlgorithm, stream, cancellationToken: cancellationToken )
+                var hash = await Hash.WithAlgorithmAsync ( this._hashAlgorithm, stream, this._bufferSize, cancellationToken: cancellationToken )
                                      .ConfigureAwait ( false );
                 entry = new IntegrityFile.Entry ( path, hash );
             }
